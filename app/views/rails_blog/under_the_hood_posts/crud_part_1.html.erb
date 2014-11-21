@@ -1,8 +1,82 @@
 <h1>The in’s and out’s of CRUD</h1>
-<div>If you answer ‘yes’ to one of these questions then this post if for you!</div>
-<ul>
+<h4>If you answer ‘yes’ to one of these questions then this post if for you!</h4>
+<ul class="init-desc">
 	<li>Have you ever wondered how your html views in rails get rendered in the browser?</li>
 	<li>Do you not really know what CRUD is?</li>
 	<li>Are you unsure when to use GET, POST, PUT, PATCH, and DELETE?</li>
 	<li>Are you curious how form_for generates the right form in the browser? If so, then this post is for you!</li>
 </ul>
+<h4>What you should already know</h4>
+<ul class="init-desc">
+	<li>Basic understanding of Model View Controller (MVC) concept in Rails</li>
+	<li>Some experience with static pages and models</li>
+</ul>
+<h2> What is CRUD? </h2>
+<p>
+	CRUD is an acronym for Create, Read, Update, Destroy. It refers to all the the major functions that are implemented in database applications. For example, if you had a User Model this is probably the barebone functionality you will need to have.
+</p>
+
+<div class="table-title"> User Model Crud Functionality</div>
+<div class="table-1" >
+	<table>
+<!-- 		<thead>
+			<tr>
+				<th class="table-title" colspan="2">User Model Crud Functionality</td>	
+			</tr>
+		</thead> -->
+		<tr>
+			<td>Functionality</td>
+			<td>Example</td>
+		</tr>
+		<tr>
+			<td>Creating Users</td>
+			<td>Sign Up Page</td>
+		</tr>
+		<tr>
+			<td>Reading and displaying User attributes</td>
+			<td>User profile page</td>
+		</tr>
+		<tr>
+			<td>Updating Users</td>
+			<td>Changing email or password</td>
+		</tr>
+		<tr>
+			<td>Deleting Users</td>
+			<td>A link to remove your account</td>
+		</tr>
+	</table>
+</div>
+<p>With most models that you can think of (e.g. users, tweets) you'll need to implement CRUD functionality.</p>
+<h2> Let's get start with our app! </h2>
+<p>We’re going to create a library app that will implement CRUD functionality for a Book model as specified in the table above</p>
+<h4> Create a new app in your terminal and then go into that directory </h4>
+<pre><code class="language-bash">> rails new library
+	> cd library
+</code></pre>
+</br>
+<p>Generate a Book model that will hold the data for our books. A book will have a <span class="inline-code">title (type String)</span> and a <span class="inline-code">description (type Text)</span>.</p>
+<pre><code class="language-bash">> rails generate model Pokemon name:string description:text
+</code></pre>
+
+<div class="info-box question-box">
+	<%= image_tag("rails_blog/question_mark.png", class: 'question_mark_image') %>
+	<div class="question"> 
+		<span>What’s the difference from type String and type Text?</span>
+		<span class="glyphicon glyphicon-chevron-down expanding-arrow"></span>
+	</div>
+	<div class="box-description hidden">
+		As a general rule of thumb, use <span class="inline-code">:string</span> for short text input (username, email, password, titles, etc.) and use <span class="inline-code">:text</span> for longer expected input (descriptions, comment content, etc.).
+		</br>
+		</br>
+		<%= link_to 'More commentary', url: 'http://bit.ly/1s8IZmc' %> for the curious on the differences between <span class="inline-code">type String</span> and <span class="inline-code">type Text</span> at the database level.
+	</div>
+</div>
+Running the rails generator command above should have created a migration file in your <span class="inline-code">db/migrate</span> directory. Remember all this command did was add a migration file! We have not added the book table to our database. That is what <span class="inline-code">rake db:migrate</span> is for.
+</br>
+</br>
+Run <span class="inline-code">rake db:migrate</span> to add our book table to our database:
+<pre><code class="language-bash">> rails generate model Pokemon name:string description:text
+</code></pre>
+
+
+

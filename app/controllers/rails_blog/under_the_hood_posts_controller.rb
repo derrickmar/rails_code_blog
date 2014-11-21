@@ -7,5 +7,8 @@ module RailsBlog
 
     def crud_part_1
     end
+
+    def minitopics
+    end
   end
 end

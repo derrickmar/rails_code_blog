@@ -3,6 +3,7 @@ module RailsBlog
 		require "jquery-rails"
 		require "bootstrap-sass"
 		require "sprockets"
+		require "autoprefixer-rails"
 		isolate_namespace RailsBlog
 	end
 end
