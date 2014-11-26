@@ -53,7 +53,7 @@
 <pre><code class="language-bash">> rails new library
 	> cd library
 </code></pre>
-</br>
+<br>
 <p>Generate a Book model that will hold the data for our books. A book will have a <span class="inline-code">title (type String)</span> and a <span class="inline-code">description (type Text)</span>.</p>
 <pre><code class="language-bash">> rails generate model Pokemon name:string description:text
 </code></pre>
@@ -66,14 +66,14 @@
 	</div>
 	<div class="box-description hidden">
 		As a general rule of thumb, use <span class="inline-code">:string</span> for short text input (username, email, password, titles, etc.) and use <span class="inline-code">:text</span> for longer expected input (descriptions, comment content, etc.).
-		</br>
-		</br>
+		<br>
+		<br>
 		<%= link_to 'More commentary', url: 'http://bit.ly/1s8IZmc' %> for the curious on the differences between <span class="inline-code">type String</span> and <span class="inline-code">type Text</span> at the database level.
 	</div>
 </div>
 Running the rails generator command above should have created a migration file in your <span class="inline-code">db/migrate</span> directory. Remember all this command did was add a migration file! We have not added the book table to our database. That is what <span class="inline-code">rake db:migrate</span> is for.
-</br>
-</br>
+<br>
+<br>
 Run <span class="inline-code">rake db:migrate</span> to add our book table to our database:
 <pre><code class="language-bash">> rails generate model Pokemon name:string description:text
 </code></pre>

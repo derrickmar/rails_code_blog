@@ -1,0 +1,127 @@
+<h1 class="main-topic"><a name="ajax_in_rails"> Ajax in Rails</a></h1>
+<p class="small-header">We'll be learning one of the methods of implementing AJAX within the Rails framework.</p>
+<h4><a name="what_is_ajax">What is AJAX?</a></h4>
+<p>
+	AJAX allows browsers to update parts of a web page, without reloading the whole page.
+</p>
+
+<h4><a name="why_use_ajax">Why use AJAX?</a></h4>
+<p>
+	<strong>Better user experience (in some cases)	:</strong> In the basic app below, our browser reloads everytime we add a new tasks. That's quite annoying since we'll probably be adding many tasks in a short period of time. AJAX allows you to add tasks without reloading the entire page.
+</p>
+
+<p>
+	<strong>Run tasks in the background:</strong> For example, say you are looking at comments in a blog. If someone else happens to comment on the blog in a different browser after you already loaded the page, it won't update on your end until you reload the entire page. You can build funtionality that sends an AJAX request when the database changes to make sure your frontend is reflecting the most up-to-date state of your database.	We won't go over <%= link_to "database polling", 'http://whatis.techtarget.com/definition/polling', target: '_blank' %> in this post, but it's good to be aware of this.<br>
+</p>
+
+<h2><a name="basic_app">The basic app</a></h2>
+<p>
+	We will use a simple rails app to get started. The app has one model: Task. There is one view that consists of a inline form to add tasks and a table that shows all the tasks that have been added.
+</p> 
+<p>
+	If you want to build the template from scratch see the tip box below:
+</p>
+
+<div class="info-box tip-box">
+	<%= render 'tasks_template' %>
+</div>
+<p>Or you can go to the <%= link_to "github repo", 'https://github.com/dmarsupastar/tasks_template', target: '_blank' %> and clone it like so:</p>
+<pre><code class="language-git">> git clone git@github.com:dmarsupastar/tasks_template.git</code></pre>
+
+<div class="info-box tip-box">
+	<%= render 'push_to_your_own_repo_after_clone' %>
+</div>
+
+<p>Now that you have the basic app, fire up that rails server to see it! Add a couple of tasks. It should look something like this.</p>
+<%= image_tag 'rails_blog/tasks_template.png', class: 'full_image', id: 'poo2' %>
+
+<h2 id="poo"><a name="implementing_ajax">Implementing AJAX</a></h2>
+<h4><a name="remote_true">remote: true</a></h4>
+<p>
+To enable AJAX on a form rather than the browser's normal submit mechanism, add the <span class="inline-code">remote: true</span> option to the <span class="inline-code">form_for</span> helper.
+</p>
+<div class="file-title">index.html.erb</div>
+<pre><code class="language-markup">&lt;%= form_for @task, html: { class: 'form-inline', id: 'task_form', role: 'form'}, remote: true do |f| %></code></pre>
+<p>
+<h4><a name="respond_to">respond_to block</a></h4>
+Because the form's remote option is set to true, the request will be posted to the TasksController as an AJAX request, looking for Javascript. In order for your rails app to detect this AJAX request we need to write a  <span class="inline-code">respond_to</span> block in our create action that responds with javascript when the <%= link_to "MIME", 'http://stackoverflow.com/questions/3828352/what-is-a-mime-type', target: '_blank' %> type of the HTTP request is <span class="inline-code">text/javascript</span>.
+</p>
+
+<div class="file-title">tasks_controller.rb</div>
+<pre><code class="language-ruby">def create
+		@task = Task.new(task_params)
+		respond_to do |format|
+			if @task.save
+				format.html { redirect_to root_path } # support a non-ajax call
+				format.js # support an ajax call
+			else
+				format.html { redirect_to root_path }
+				format.js { render :template => 'tasks/error.js.erb' }
+			end
+		end
+  end</code></pre>
+
+<h4><a name="js_templates">Add Javascript templates</a></h4>
+<p>
+Now we need to write the actual Javascript code for the server to respond with. 
+This will be sent and executed on the client side.
+By default, we have a corresponding <span class="inline-code">app/views/users/create.js.erb</span> view file that will be sent over if the task is saved succcessfully. Let's create the file and write the appropriate javascript and jquery.
+</p>
+
+<div class="file-title">create.js.erb</div>
+<pre><code class="language-javascript">var content = '&lt;tr>\
+	&lt;td>&lt;%= @task.id %>&lt;/td>\
+	&lt;td>&lt;%= @task.description %>&lt;/td>\
+	&lt;td>&lt;%= @task.important %>&lt;/td>\
+&lt;/tr>'
+$('#task_table_body').append(content);
+$('.task_desc').val("");
+$('.task_checkbox').attr("checked", false);
+$('.alert-danger').addClass('hidden');</code></pre>
+<p>
+Wala!! Try adding a task and you will now see that the browser is not reloading the page when you submit the form (look at the refresh button on the top left corner and you will see it doesn't change). This is the magic of AJAX. While it might not seem like too of big difference in this example, you can imagine the many use cases where using ajax can be very advantageous.
+</p>
+<p>However, you can still submit empty tasks. Let's add a presence validation in our Task model.</p>
+<div class="file-title">task.rb</div>
+<pre><code class="language-ruby">validates :description, presence: true</code></pre>
+<p>
+If you try submitting the form with any empty description, you will see that no task gets added since it is not passing the validation error. However, we are not showing the flash message because in our task_controller <span class="inline-code"> create</span> action, it says to respond with <span class="inline-code">error.js.erb</span>, but the template doesn't exist yet. Let's create <span class="inline-code">app/views/users/error.js.erb</span> and write the javascript and jquery to show the error message.
+</p>
+<div class="file-title">error.js.erb</div>
+<pre><code class="language-javascript">$('.alert-danger').text('');
+&lt;% @task.errors.full_messages.each do |err| %>
+	$('.alert-danger').append("• &lt;%= err %>")
+&lt;% end %>
+$('.alert-danger').removeClass('hidden');</code></pre>
+<p>
+And just like that, we have enabled AJAX for adding tasks and error validations. Again notice the browser does not refresh when you submit an empty task and when the error message is rendered.
+</p>
+<h2><a name="conclusion">Conclusion</a></h2>
+AJAX is become an increasingly important technique in modern, dynamic websites. You have seen how simple it is to enable AJAX within the rails framework. There are many other ways to implement AJAX in an application. Even with the method we learned just now, it can be expanded upon with success and error callbacks to handle certain server responses. To learn more, please use these great resources to spearhead the process.
+<h4><a name="other_resources">Other resources</a></h4>
+<ul>
+	<li><%= link_to "AJAX Rails Guides", "http://edgeguides.rubyonrails.org/working_with_javascript_in_rails.html", target: '_blank' %></li>
+	<li><%= link_to "Railscasts - AJAX", "http://www.youtube.com/watch?v=5xEHK13u5Kc", target: '_blank' %></li>
+</ul>
+<h2><a name="extras">Extras</a></h2>
+<p class="step">How would you implement success and error callbacks via jQuery in our app for <span class="inline-code">create.js.erb</span>?</p>
+<div class="file-title">create.js.erb</div>
+<pre><code class="language-javascript">$(document).ready(function() {
+	$("#task_form").on("ajax:success", function(e, data, status, xhr) {
+		var content = '&lt;tr>\
+			&lt;td>&lt;%= @task.id %>&lt;/td>\
+			&lt;td>&lt;%= @task.description %>&lt;/td>\
+			&lt;td>&lt;%= @task.important %>&lt;/td>\
+		&lt;/tr>'
+		$('#task_table_body').append(content);
+		$('.task_desc').val("");
+		$('.task_checkbox').attr("checked", false);
+	}).on("ajax:error", function(e, xhr, status, error) {
+		console.log('server error');
+});</code></pre>
+
+
+
+
+
+

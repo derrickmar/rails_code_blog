@@ -1,0 +1,26 @@
+<%= image_tag("rails_blog/tip.png", class: 'question_mark_image') %>
+<div class="question"> 
+	<span>Optional: Push to your own github repo and pull changes from mine after cloning</span>
+	<span class="glyphicon glyphicon-chevron-down expanding-arrow"></span>
+</div>
+<div class="box-description hidden">
+		If you type <span class="inline-code"> git remote -v </span> you'll see that origin still points to my repository. This means if you try to push to my repository you'll probably get the following because I have not added you as a collaborator to my github repo:
+		<pre><code class="language-bash">remote: Permission to dmarsupastar/tasks_template.git denied to [YOUR-USERNAME]</code></pre>
+		You may want to create your own github repo to push your changes to. Additionally, you may want to pull in changes that I make in the future to the repo that you just cloned from. To do this, follow these steps:
+	<br>
+	<br>
+	<ol>
+		<li>Create your own github repository. Go to <%= link_to "www.github.com", 'https://github.com/', target: '_blank' %> and click the <i>+New Repository</i> button</li>
+		<li>Now rename my remote from origin to upstream. This allows you to pull in patches from me when specified.
+			<pre><code class="language-bash">> git remote rename origin upstream</code></pre>
+		</li>
+		<li>Add your own remote from the repository you just created. Replace URL_TO_GITHUB_REPO with the actual name of your remote:
+			<pre><code class="language-bash">> git clone git remote add origin URL_TO_GITHUB_REPO</code></pre>
+			Now if you list your remotes with <span class="inline-code"> git remote -v </span> you should see both your remote to push to (named origin) and my remote to pull from (named upstream).
+		</li>
+		<li> To push to your own repo: 
+		<pre><code class="language-bash">> git push origin master</code></pre></li>
+		<li> To pull changes to my repo simply run: 
+		<pre><code class="language-bash">> git pull upstream master</code></pre></li>
+	</ol>
+</div>

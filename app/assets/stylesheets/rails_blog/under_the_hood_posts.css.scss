@@ -2,20 +2,53 @@
 @import "bootstrap";
 $header-color: #d53a2f;
 $sidebar-color: #d36c64;
+$sidebar-hover-color: #DB0F00;
 $question-color: #fff9d8;
 $tip-color: #d5e9f6;
+$header-height: 50px;
+$body-color: black;
+$sidebar-selected: #f24235;
 
-body {
-	margin-top: 50px;
-	font-size: 16px;
-	font-family: 'Open Sans', sans-serif;
-//	font-family: "Times New Roman", Georgia, Serif;
-font-weight: 300;
+@mixin darkenOnHover($color) {
+	&:hover {
+		background-color: mix($color, black, 97%);
+		cursor: pointer;
+	}
 }
 
-h1 {
-	font-size: 36px;
+body {
+	margin-top: $header-height;
+	font-size: 16px;
+	font-family: 'Open Sans', sans-serif;
+	text-align: justify;
+	//	font-family: "Times New Roman", Georgia, Serif;
+	font-weight: 300;
+}
+
+:not(pre) > code[class*="language-"], pre[class*="language-"] {
+	margin-bottom: 17px;
+	&:hover {
+		cursor: auto;
+	}
+}
+
+.main-topic {
+	margin-bottom: 5px;
+	margin-top: 0px;
 //	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h4 {
+	a {
+		text-decoration: none;
+		color: $body-color;
+		padding-top:$header-height;
+		padding-top: calc(#{$header-height} + 10px);
+		&:hover {
+			text-decoration: none;
+			color: $body-color;
+		}
+	}
 }
 
 h2 {
@@ -26,10 +59,16 @@ h2 {
 h4 {
 	font-size: 18px;
 	font-weight: 800;
+	margin-top: 15px;
 //	font-style: italic;
 }
 
+.step {
+	font-weight: 700;
+}
+
 .file-title {
+	margin-top: 3px;
 	font-weight: 800;
 	font-size: 12px;
 	font-style: italic;
@@ -57,9 +96,49 @@ h4 {
 }
 
 .sidebar {
+	padding: 0;
 	background-color: $sidebar-color;
 	height: calc(100vh - 50px);
 	position: fixed;
+	color: white;
+
+	.selected {
+		background-color: $sidebar-selected;
+	}
+
+	a {
+		color: white;
+		display: block;
+		text-decoration: none;
+		font-size: 18px;
+		padding: 8px 0px 8px 15px;
+
+		&:hover {
+			color: white;
+			display: block;
+			text-decoration: none;
+			background-color: $sidebar-selected;
+			cursor: pointer;
+		}
+	}
+
+	.nested-one {
+		a {
+			font-size: 16px;
+			padding: 6px 0px 6px 25px;
+			font-weight: 300;
+			margin: 0;
+		}
+	}
+
+	.nested-two {
+		a {
+			font-size: 16px;
+			padding: 6px 0px 6px 35px;
+			font-weight: 300;
+			margin: 0;
+		}
+	}
 }
 
 .navbar-brand {
@@ -90,27 +169,47 @@ h4 {
 	font-style: italic;
 }
 
+.small-header {
+	font-weight: 300;
+	font-style: italic;
+	font-size: 14px;
+	margin-bottom: 20px;
+}
+
+.note {
+	font-weight: 300;
+	font-style: italic;
+	font-size: 14px;
+}
+
 // Question styles
 .info-box {
 	&.question-box {
 		background-color: $question-color;
+		.question {
+			@include darkenOnHover($question-color)
+		}
 	}
 	&.tip-box {
 		background-color: $tip-color;
+
+		.question {
+			@include darkenOnHover($tip-color)
+		}
 	}
-	padding: 25px 30px;
+
 	font-size: 16px;
 	margin: 20px 0px;
-	&:hover {
-		cursor: pointer;
-	}
 	position: relative;
 	overflow: visible;
-}
 
-.question {
-	font-style: italic;
-	font-weight: 800;
+	.question {
+		padding: 25px 30px;
+		font-style: italic;
+		font-weight: 800;
+	}
+
+
 }
 
 .question_mark_image {
@@ -128,13 +227,14 @@ h4 {
 }
 
 .box-description {
-	padding-top: 10px;
+	padding: 10px 30px 25px 30px;
 	text-align: justify;
 }
 
 // Table Styles??
 .table-1 {
-	margin:0px;padding:0px;
+	margin:0px;
+	padding:0px;
 	border:1px solid #7f0000;
 	font-family: Arial;
 }

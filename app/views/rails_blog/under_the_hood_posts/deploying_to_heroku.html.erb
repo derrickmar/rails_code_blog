@@ -1,0 +1,47 @@
+<h2>Deploying on Heroku</h2>
+<h4>If you answer ‘yes’ to one of these statements then this post if for you!</h4>
+<ul class="init-desc">
+	<li>Have you ever wondered how your html views in rails get rendered in the browser?</li>
+	<li>Do you not really know what CRUD is?</li>
+	<li>Are you unsure when to use GET, POST, PUT, PATCH, and DELETE?</li>
+	<li>Are you curious how form_for generates the right form in the browser? If so, then this post is for you!</li>
+</ul>
+<br>
+<br>
+
+The first thing we want to do is add two productions that enable you to deploy to heroku smoothly. Edit your <span class="inline-code">Gemfile</span> as below. Notice we put <span class="inline-code">sqlite</span> and <span class="inline-code">better_errors</span> related gems in development. We add 
+<pre><code class="language-javascript">group :development do
+	gem 'sqlite3'
+end
+
+group :production do
+	gem 'rails_12factor'
+	gem 'pg'
+end</code></pre>
+<div class="info-box question-box">
+	<%= render 'heroku_gems' %>
+</div>
+
+First, verify you are in the root directory of your rails app.
+<div class="info-box question-box">
+	<%= image_tag("rails_blog/question.png", class: 'question_mark_image') %>
+	<div class="question"> 
+		<span>What is the root directory of a rails app?</span>
+		<span class="glyphicon glyphicon-chevron-down expanding-arrow"></span>
+	</div>
+	<div class="box-description hidden">
+		The root directory of a rails app is the directory that contains the sub-directories <span class="inline-code">app, config, lib, etc...</span>  and your <span class="inline-code">Gemfile</span>.
+	</div>
+</div>
+
+If you haven't initialized git yet, you will need to do so now by running the following the commands:
+<pre><code class="language-bash">> git init
+> git add .
+> git commit -m "commit all necessary files for deployment"</code></pre>
+
+Great! You have added your files to the git index and committed them. Let's go ahead an create an app on Heroku:
+<pre><code class="language-bash">> heroku create</code></pre>
+
+This creates a git remote called <span class="inline-code">heroku</span> which you can the push your repository to in order deploy your app.
+
+To verify that this worked, run 
