@@ -9,6 +9,10 @@ module RailsBlog
     # def deploying_to_heroku
     # end
 
+    def ngrok
+      @sidebar_partial = 'rails_blog/sidebar/sidebar_ngrok'
+    end
+
     def quick_guide_heroku
       @sidebar_partial = 'rails_blog/sidebar/sidebar_quick_guide_heroku'
     end

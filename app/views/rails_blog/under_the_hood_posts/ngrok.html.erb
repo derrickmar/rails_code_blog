@@ -1,0 +1,64 @@
+<h1 class="main-topic"><a name="ngrok">ngrok</a></h1>
+<p class="small-header">Securely expose a locally running web service to the internet with one command.</p>
+<h4><a name="what_is_ngrok">What is ngrok?</a></h4>
+<p>
+	ngrok lets you expose a locally running web service to the internet. 
+</p>
+
+<h4><a name="why_use_ngrok">Why use ngrok?</a></h4>
+<ul class="init-desc">
+	<li>Securely expose a local web server to the internet fast</li>
+	<li>Capture all traffic for detailed inspection and replay</li>
+</ul>
+<h4 class="step"><a name="scenarios"> Here is a some of scenarios where ngrok would be extremely useful</a></h4>
+<ul>
+	<li>Your at a hackathon and only have few seconds to get your hack live for viewers to see when you present</li>
+	<li>You've finished a feature for an app on your computer and want to show it to everyone at a meeting</li>
+	<li>You want to inspect the HTTP requests that are hitting your server</li>
+	<li>You want to replay a previous HTTP requests to view the JSON that was being sent over</li>
+</ul>
+<h2><a name="using_ngrok">Using ngrok</a></h2>
+<p>
+	It really only takes one command to show your app to the entire world. First download the zip file at <%= link_to("www.ngrok.com", 'https://ngrok.com/', target: '_blank') %> and unzip it.
+</p>
+
+<div class="info-box question-box">
+	<%= image_tag("rails_blog/question.png", class: 'question_mark_image') %>
+	<div class="question"> 
+		<span>Does the ngrok file have to be in my rails app directory?</span>
+		<span class="glyphicon glyphicon-chevron-down expanding-arrow"></span>
+	</div>
+	<div class="box-description hidden">
+			No, ngrok does not have to be in the same directory as your rails app. Ngrok and your rails app are completely seperate. Ngrok simply specifies which port on your local machine to expose to the internet and your rails server may just happen to be running on that port.
+	</div>
+</div>
+
+<p>
+	Now check if you have a rails server running locally for the app you want to show on the internet. If you haven't done so, do so now:
+</p>
+<pre><code class="language-bash">> rails s</code></pre>
+
+<p>
+	Next, in your terminal go to the directory that ngrok is in and type the following command to tell ngrok which port your web server is running on. Assuming your rails server is running on port 3000 you would type:
+</p>
+<pre><code class="language-bash">> ./ngrok 3000</code></pre>
+
+<p> After you type the command you will see an output similiar to this:</p>
+<pre><code class="language-bash">ngrok
+Tunnel Status                 online                                                
+Version                       1.7/1.6                                               
+Forwarding                    http://4522a132.ngrok.com -> 127.0.0.1:3000
+Forwarding                    https://4522a132.ngrok.com -> 127.0.0.1:3000
+Web Interface                 127.0.0.1:4040                                        
+# Conn                        0                                                     
+Avg Conn Time                 0.00ms
+</code></pre>
+<p>
+	Now go to the URL displayed in the output to see you app on the internet. In the case above, I would go to <span class="inline-code"> http://4522a132.ngrok.com</span>. What's amazing is that all requests with this URL goes to your server running on your local machine!
+</p>
+<h2><a name="conclusion">Conclusion</a></h2>
+<p> I've only gone over how to use ngrok to expose your rails app to the internet. To learn about how nrgok works and the other awesome features that ngrok has (such as inspecting HTTP requests) start <%= link_to("here", 'https://ngrok.com/usage', target: '_blank') %>.</p>
+
+<div class="note">
+	Last updated: November 27, 2014
+</div>
