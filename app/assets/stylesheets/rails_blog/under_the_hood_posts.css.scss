@@ -18,6 +18,12 @@ $sidebar-selected: #f24235;
 	}
 }
 
+@mixin sidebarBoxShadow() {
+	border-top: 1px solid $sidebar-border;
+	border-bottom: 1px solid $sidebar-border;
+	box-shadow: 0px 1px 0px $sidebar-box-shadow;
+}
+
 body {
 	margin-top: $header-height;
 	font-size: 16px;
@@ -25,6 +31,7 @@ body {
 	text-align: justify;
 	//	font-family: "Times New Roman", Georgia, Serif;
 	font-weight: 300;
+	margin-bottom: 10px;
 }
 
 :not(pre) > code[class*="language-"], pre[class*="language-"] {
@@ -119,9 +126,7 @@ h4 {
 
 	.selected {
 		background-color: $sidebar-selected;
-		border-top: 1px solid $sidebar-border;
-		border-bottom: 1px solid $sidebar-border;
-		box-shadow: 0px 1px 0px $sidebar-box-shadow;
+		@include sidebarBoxShadow();
 	}
 
 	a {
@@ -137,9 +142,7 @@ h4 {
 			text-decoration: none;
 			background-color: $sidebar-selected;
 			cursor: pointer;
-			border-top: 1px solid $sidebar-border;
-			border-bottom: 1px solid $sidebar-border;
-			box-shadow: 0px 1px 0px $sidebar-box-shadow;
+			@include sidebarBoxShadow();
 		}
 	}
 
@@ -163,9 +166,7 @@ h4 {
 
 	.nested-two-focused {
 		background-color: $header-color;
-		border-top: 1px solid $sidebar-border;
-		border-bottom: 1px solid $sidebar-border;
-		box-shadow: 0px 1px 0px $sidebar-box-shadow;
+		@include sidebarBoxShadow();
 	}
 }
 
@@ -271,7 +272,7 @@ h4 {
 	text-align: justify;
 }
 
-// Table Styles??
+//================ Table Styles
 .table-1 {
 	margin:0px;
 	padding:0px;
@@ -331,10 +332,7 @@ h4 {
 }
 
 
-// from api-spree
-$navbar-bg-color: #303030;
-$subnav-bg-color: #262626;
-$cause-viewport-height: 35vh;
+//================ index.html.erb: Direction aware stylse
 
 @mixin transition($method, $s, $type) {
 	-webkit-transition: $method $s $type;
@@ -349,11 +347,6 @@ $cause-viewport-height: 35vh;
 	-moz-transition-timing-function: $method;
 	-ms-transition-timing-function: $method;
 	-o-transition-timing-function: $method;
-}
-
-.big {
-	width: 200px !important;
-	height: 200px !important;
 }
 
 .da-thumbs-2 {
