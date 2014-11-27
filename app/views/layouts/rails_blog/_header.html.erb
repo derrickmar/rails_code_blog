@@ -8,7 +8,12 @@
       </button>    
     </div>
     <div class="navbar-brand">
-      <%= link_to "Under the Hood", root_path, id: 'logo' %>
+      <%= link_to root_path, id: "logo-container" do %>
+        <%= image_tag('rails_blog/logo.png', id:'logo-img') %>
+        <span id="logo">Under the Hood</span>
+      <% end %>
+      </div>
     </div>
   </div>
 </nav>
+

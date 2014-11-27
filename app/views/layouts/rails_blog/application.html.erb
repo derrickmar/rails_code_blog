@@ -13,12 +13,12 @@
 	<%= render 'layouts/rails_blog/header' %>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="sidebar col-xs-3">
+			<div class="sidebar col-sm-3 hidden-xs">
 				<% if @sidebar_partial %>
 					<%= render @sidebar_partial %>
 				<% end %>
 			</div>
-			<div class="col-xs-9 col-xs-offset-3 content-box">
+			<div class="col-sm-9 col-sm-offset-3 col-xs-12 content-box">
 				<%= yield %>
 			</div>
 		</div>

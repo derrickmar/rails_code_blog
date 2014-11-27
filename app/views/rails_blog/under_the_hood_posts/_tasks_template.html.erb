@@ -4,35 +4,27 @@
 		<span class="glyphicon glyphicon-chevron-down expanding-arrow"></span>
 	</div>
 	<div class="box-description hidden">
-		Create a new rails app
+		<p>Create a new rails app</p>
 		<pre><code class="language-bash">> rails new tasks_app
 > cd task_app</code></pre>
-		<br>
-		Create a new Task model with a description of type string and important of type boolean,
+		<p>Create a new Task model with a description of type string and important of type boolean</p>
 		<pre><code class="language-bash">> rails generate model Task description:string important:boolean</code></pre>
-		<br>
-		Migrate the Task model to the database
+		<p>Migrate the Task model to the database</p>
 		<pre><code class="language-bash">> rake db:migrate</code></pre>
-		<br>
-		Generate a tasks_controller
+		<p>Generate a tasks_controller</p>
 		<pre><code class="language-bash">> rails generate controller Tasks</code></pre>
-		<br>
-		Let's add bootstrap to quickly make a acceptable frontend. We'll also include better errors for kicks. Add these lines to your Gemfile:
+		<p>Let's add bootstrap to quickly make a acceptable frontend. We'll also include better errors for kicks. Add these lines to your Gemfile:</p>
 		<div class="file-title">Gemfile</div>
 		<pre><code class="language-ruby">gem 'bootstrap-sass', '~> 3.3.1'
 gem "better_errors"
 gem "binding_of_caller"</code></pre>
-		<br>
-		Install the gems
+		<p>Install the gems</p>
 		<pre><code class="language-bash">> bundle install</code></pre>
-		<br>
-		Add RESTful routes for tasks and change the root route to the index action of the task controller.
-		<br>
+		<p>Add RESTful routes for tasks and change the root route to the index action of the task controller.</p>
 		<div class="file-title">routes.rb</div>
 		<pre><code class="language-ruby">root 'tasks#index'
 resources :tasks</code></pre>
-		<br>
-		In our tasks_controller.rb let's add the appropriate code for the index and create action. All of this should familiar to you by now.
+		<p>In our tasks_controller.rb let's add the appropriate code for the index and create action. All of this should familiar to you by now.</p>
 		<div class="file-title">tasks_controller.rb</div>
 		<pre><code class="language-ruby">def index
 	# create a new task for the task form
@@ -52,9 +44,7 @@ private
 def task_params
 	params.require(:task).permit(:important, :description)
 end</code></pre>
-		<br>
-		Now we'll create the index view. Create a new file <span class="inline-code">app/views/tasks/index.html.erb</span>. Add the following html and embedded ruby below. It may seem like a lot of html but all were doing is adding an form to create tasks and displaying all the tasks in a table.
-		<br>
+	<p>Now we'll create the index view. Create a new file <span class="inline-code">app/views/tasks/index.html.erb</span>. Add the following html and embedded ruby below. It may seem like a lot of html but all were doing is adding an form to create tasks and displaying all the tasks in a table.</p>
 		<div class="file-title">index.html.erb</div>
 		<pre><code class="language-markup">&lt;div class="container"> 
 	&lt;div class="row">
@@ -101,8 +91,7 @@ end</code></pre>
 		&lt;/div>
 	&lt;/div>
 &lt;/div></code></pre>
-			<br>
-		Let's add a little bit of css to make the inline-form look better.
+		<p>Let's add a little bit of css to make the inline-form look better</p>
 		<div class="file-title">tasks.css.scss</div>
 				<pre><code class="language-scss">@import "bootstrap-sprockets";
 @import "bootstrap";
@@ -117,7 +106,8 @@ end</code></pre>
 .checkbox {
 	margin: 0 10px;
 }</code></pre>
-
+	<p>
 		You have completed the basic app that we'll be using for this minitopic lecture!
+	</p>
 		
 	</div>

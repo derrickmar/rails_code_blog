@@ -1,7 +1,11 @@
-<h1 class="main-topic">A Quick Guide to Deploying on Heroku</h1>
-<p class="small-header">Contains the commands and simple explanations to deploy on Heroku. For a more in-depth analysis, visit <%= link_to "Heroku's Getting Started with Rails", 'https://devcenter.heroku.com/articles/getting-started-with-rails4', target: '_blank' %>.</p>
+<h1 class="main-topic"><a name="deploy_to_heroku">A Quick Guide to Deploying on Heroku</a></h1>
+<p class="small-header">
+	Contains the commands and simple explanations to deploy on Heroku. For a more in-depth analysis, visit <%= link_to "Heroku's Getting Started with Rails", 'https://devcenter.heroku.com/articles/getting-started-with-rails4', target: '_blank' %>.
+</p>
 
-<p class="step">Step 1: Add two gems for production that enable you to deploy to Heroku smoothly</p>
+<h4 class="step">
+	<a name="add_gems">Step 1: Add two gems for production that enable you to deploy to Heroku smoothly</a>
+</h4>
 <div class="file-title">Gemfile</div>
 <pre><code class="language-ruby">group :development do
 	gem 'sqlite3' # if your using sqlite3 database in development
@@ -12,28 +16,39 @@ group :production do
 	gem 'pg' # use the PostgreSQL database in production
 end</code></pre>
 
-<p class="step">Step 2: Initialize a git repository in the root directory of your rails app if you haven't done so yet</p>
+<h4 class="step">
+	<a name="initialize_git">Step 2: Initialize a git repository in the root directory of your rails app if you haven't done so yet</a>
+</h4>
 <pre><code class="language-bash">> git init
 > git add .
 > git commit -m "commit necessary files for deployment"</code></pre>
 
-<p class="step">Step 3: Create a git remote called <span class="inline-code">heroku</span> which you can the push your repository to in order deploy your app.</p>
+<h4 class="step">
+	<a name="create_heroku_app">Step 3: Create a git remote called <span class="inline-code">heroku</span> which you can the push your repository to in order deploy your app.</a>
+	</h4>
 <pre><code class="language-bash">> heroku create
 Creating warm-wave-1943... done, stack is cedar-14
 http://warm-wave-1943.herokuapp.com/ | git@heroku.com:warm-wave-1943.git
 Git remote heroku added</code></pre>
 
-<p class="step">Step 4: Push your local repository to Heroku</p>
+<h4 class="step">
+	<a name="push_to_heroku">Step 4: Push your local repository to Heroku</a>
+</h4>
 <p class="small-header">
 <pre><code class="language-bash">> git push heroku master</code></pre>
+</p>
 
-<p class="step">Step 5: Migrate your database on Heroku</p>
+<h4 class="step">
+	<a name="migrate_db">Step 5: Migrate your database on Heroku</a>
+</h4>
 <p class="note">
 	Note: Whenever you create new migrations locally and push to heroku, you'll have to run those migrations on the production server as well with the command below.
 </p>
 <pre><code class="language-bash">> heroku run rake db:migrate</code></pre>
 
-<p class="step">Step 6: Go to the URL of your heroku app from the terminal</p>
+<h4 class="step">
+	<a name="open_heroku_app">Step 6: Go to the URL of your heroku app from the terminal</a>
+</h4>
 <pre><code class="language-bash">> heroku open</code></pre>
 <p>
 If you open your app and see <i>"We're sorry, but something went wrong"</i> type <span class="inline-code">heroku logs</span> to see what your production server is outputting and why it is erroring out.

@@ -2,6 +2,8 @@
 @import "bootstrap";
 $header-color: #d53a2f;
 $sidebar-color: #d36c64;
+$sidebar-border: #AD0000;
+$sidebar-box-shadow: #FF766C;
 $sidebar-hover-color: #DB0F00;
 $question-color: #fff9d8;
 $tip-color: #d5e9f6;
@@ -42,11 +44,17 @@ h1, h2, h4 {
 	a {
 		text-decoration: none;
 		color: $body-color;
-		padding-top:$header-height;
-		padding-top: calc(#{$header-height} + 10px);
-		&:hover {
-			text-decoration: none;
-			color: $body-color;
+//		padding-top: $header-height;
+//		padding-top: calc(#{$header-height} + 10px);
+&:hover {
+	text-decoration: none;
+	color: $body-color;
+}
+&:before {
+	content:"";
+	display:block;
+		  height:60px; /* fixed header height*/
+		  margin:-60px 0 0; /* negative fixed header height */
 		}
 	}
 }
@@ -63,8 +71,14 @@ h4 {
 //	font-style: italic;
 }
 
+//.hidden {
+//	display: none;
+//}
+
 .step {
+	font-size: 16px;
 	font-weight: 700;
+	text-decoration: none;
 }
 
 .file-title {
@@ -101,9 +115,13 @@ h4 {
 	height: calc(100vh - 50px);
 	position: fixed;
 	color: white;
+	border-right: 2px solid $sidebar-border;
 
 	.selected {
 		background-color: $sidebar-selected;
+		border-top: 1px solid $sidebar-border;
+		border-bottom: 1px solid $sidebar-border;
+		box-shadow: 0px 1px 0px $sidebar-box-shadow;
 	}
 
 	a {
@@ -119,6 +137,9 @@ h4 {
 			text-decoration: none;
 			background-color: $sidebar-selected;
 			cursor: pointer;
+			border-top: 1px solid $sidebar-border;
+			border-bottom: 1px solid $sidebar-border;
+			box-shadow: 0px 1px 0px $sidebar-box-shadow;
 		}
 	}
 
@@ -139,6 +160,13 @@ h4 {
 			margin: 0;
 		}
 	}
+
+	.nested-two-focused {
+		background-color: $header-color;
+		border-top: 1px solid $sidebar-border;
+		border-bottom: 1px solid $sidebar-border;
+		box-shadow: 0px 1px 0px $sidebar-box-shadow;
+	}
 }
 
 .navbar-brand {
@@ -150,12 +178,24 @@ h4 {
 	margin: auto;
 }
 
+#logo-container {
+	text-decoration: none;
+}
+
 #logo {
 	max-width: 150px;
 	margin-top: -5px;
 	font-family: 'Lobster', cursive;
 	color: white;
 	font-size: 28px;
+}
+
+#logo-img {
+	width: 30px;
+	height: auto;
+	position: relative;
+	top: -5px;
+	left: -3px;
 }
 
 .content-box {
@@ -227,7 +267,7 @@ h4 {
 }
 
 .box-description {
-	padding: 10px 30px 25px 30px;
+	padding: 0px 30px 25px 30px;
 	text-align: justify;
 }
 
@@ -289,10 +329,128 @@ h4 {
 	font-weight: 800;
 	font-size: 18px;
 }
-//.table-1 .table-title {
-//	text-align: center;
-//	padding: 7px;
-//	background-color: #ff2b2b;
-//	color: white;
-//	border-width: 0px 0px 1px 0px;
-//}
+
+
+// from api-spree
+$navbar-bg-color: #303030;
+$subnav-bg-color: #262626;
+$cause-viewport-height: 35vh;
+
+@mixin transition($method, $s, $type) {
+	-webkit-transition: $method $s $type;
+	-moz-transition: $method $s $type;
+	-ms-transition: $method $s $type;
+	-o-transition: $method $s $type;
+}
+
+@mixin transition-timing($method) {
+	transition-timing-function: $method;
+	-webkit-transition-timing-function: $method;
+	-moz-transition-timing-function: $method;
+	-ms-transition-timing-function: $method;
+	-o-transition-timing-function: $method;
+}
+
+.big {
+	width: 200px !important;
+	height: 200px !important;
+}
+
+.da-thumbs-2 {
+	padding: 0;
+}
+
+.posts-holder > ul {
+	list-style: none;
+	&:nth-child(1) {
+		border-right: 2px solid white;
+	}
+}
+
+.posts-holder > ul > li {
+	position: relative;
+	font-size: 16px;
+	text-align: center;
+	background-color: $header-color;
+	width: 200px;
+	height: 200px;
+	text-decoration: none;
+	margin-right: 10px;
+	padding: 0;
+
+	& > a {
+		height: 100%;
+		width: 100%;
+		display: block;
+		position: relative;
+		overflow: hidden;
+		margin-right: 10px;
+
+		.front-face-holder {
+			display: table;
+			width: 100%;
+			height: 100%;
+		}
+		.all-causes-title {
+			display: table-cell;
+			vertical-align: middle;
+			text-align: center;
+			position: relative;
+			z-index: 1;
+			color: white;
+			font-size: 20px;
+
+		}
+		.circle {
+			position: absolute;
+			border-radius: 50%;
+			height: 80px;
+			width: 80px;
+			border: 4px solid $sidebar-border;
+			margin: auto;
+			top: 0; left: 0; bottom: 0; right: 0;
+			z-index: 0;
+		}
+	}
+
+	.hoverElem {
+		position: absolute;
+		display: table;
+		width: 100%;
+		height: 100%;
+		padding: 20px;
+		background: $sidebar-border;
+		background: rgba(173, 0, 0, 0.3);
+		// background: rgba(48, 48, 48, 0.3);
+
+		& > div {
+			height: 100%;
+			font-size: 16px;
+			display: table-cell !important;
+			vertical-align: middle;
+			color: rgba(255,255,255,0.9);
+			text-align: center;
+		}
+		span {
+			display: block !important;
+			color: rgba(255,255,255,0.9);
+		}
+		.hoverElem-header {
+			color: rgba(255,255,255,0.9);
+			font-style: italic;
+			font-size: 14px;
+			position: relative;
+			@include transition(all, 300ms, ease);
+			@include transition-timing(cubic-bezier(.91,.8,.54,1.1));
+		}
+		.hoverElem-seperator {
+			position: relative;
+			font-size: 22px;
+			@include transition(all, 400ms, ease);
+			@include transition-timing(cubic-bezier(.91,.8,.54,1.1));
+		}
+		.hoverElem-text {
+			font-size: 14px;
+		}
+	}
+}

@@ -4,11 +4,13 @@
 	<span class="glyphicon glyphicon-chevron-down expanding-arrow"></span>
 </div>
 <div class="box-description hidden">
-		If you type <span class="inline-code"> git remote -v </span> you'll see that origin still points to my repository. This means if you try to push to my repository you'll probably get the following because I have not added you as a collaborator to my github repo:
+		<p>
+			If you type <span class="inline-code"> git remote -v </span> you'll see that origin still points to my repository. This means if you try to push to my repository you'll probably get the following because I have not added you as a collaborator to my github repo:
+		</p>
 		<pre><code class="language-bash">remote: Permission to dmarsupastar/tasks_template.git denied to [YOUR-USERNAME]</code></pre>
+		<p>
 		You may want to create your own github repo to push your changes to. Additionally, you may want to pull in changes that I make in the future to the repo that you just cloned from. To do this, follow these steps:
-	<br>
-	<br>
+		</p>
 	<ol>
 		<li>Create your own github repository. Go to <%= link_to "www.github.com", 'https://github.com/', target: '_blank' %> and click the <i>+New Repository</i> button</li>
 		<li>Now rename my remote from origin to upstream. This allows you to pull in patches from me when specified.
