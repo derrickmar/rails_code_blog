@@ -4,6 +4,7 @@ module RailsBlog
   class UnderTheHoodPostsController < ApplicationController
   	def index
       @sidebar_partial = 'rails_blog/sidebar/sidebar_index'
+      @hover_elem_partial_path = 'rails_blog/under_the_hood_posts/partials/grid_hover_elem'
   	end
 
     # def deploying_to_heroku
