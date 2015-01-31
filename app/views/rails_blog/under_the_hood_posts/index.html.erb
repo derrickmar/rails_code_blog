@@ -4,12 +4,15 @@
 </p>
 
 <div id="causes-holder-first" class="posts-holder">
+<!-- <div class="happy"> </div> -->
 	<ul class="da-thumbs-2 col-xs-12">
 		<%= render partial: @hover_elem_partial_path,
 		locals: { link: under_the_hood_posts_quick_guide_heroku_path, title: "Deploy to Heroku", desc: "6 steps to show your app to the world" } %>
 		<%= render partial: @hover_elem_partial_path,
 		locals: { link: under_the_hood_posts_ajax_path, title: "Ajax in Rails", desc: "Modernize websites by sending and retrieving data in the background" } %>
 		<%= render partial: @hover_elem_partial_path,
-		locals: { link: under_the_hood_posts_ngrok_path, title: "ngrok", desc: "Expose your local rails app to the internet with one command." } %>
+		locals: { link: under_the_hood_posts_ngrok_path, title: "ngrok", desc: "Expose your local rails app to the internet with one command" } %>
+		<%= render partial: @hover_elem_partial_path,
+		locals: { link: under_the_hood_posts_angular_performance_path, title: "AngularJS", desc: "Diagonsing performance issues with ng-repeat and ng-options" } %>
 	</ul>
 </div>

@@ -21,5 +21,9 @@ module RailsBlog
     def ajax
       @sidebar_partial = 'rails_blog/sidebar/sidebar_ajax'
     end
+
+    def angular_performance
+      @sidebar_partial = 'rails_blog/sidebar/sidebar_angular_performance'
+    end
   end
 end

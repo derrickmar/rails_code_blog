@@ -1,0 +1,222 @@
+<h1 class="main-topic"><a name="performance_issues">AngularJS: Diagnosing performance issues with ng-repeat and ng-options</a></h1>
+<h2><a name="background">Background</a></h2>
+<p>
+	I've been working with a non-profit called <%= link_to "aspireeducation.org", "http://aspireeducation.org/", target: "_blank" %> to create a web app to record and analyze SAT/ACT scores for their 800 students a year. In order to create tests, we needed pages that allowed for the user to input scaled score conversion tables like the one below.
+</p>
+
+<h4><a name="conv_table">An SAT Writing Composite Score Conversion Table</a></h4>
+<%= image_tag "rails_blog/sat_writing_conv_table.png", class: "col-xs-12 large_image" %>
+<h2><a name="user_perspective">The problem from a user perspective</a></h2>
+<p>
+	Changing state via UI Router to the conversion table freezes the web page completely for about 6 seconds. With only 2 months of angularjs under my belt, I had tough debugging process ahead of me.
+</p>
+
+<iframe width="853" height="480" src="//www.youtube.com/embed/ONm0oZPYrtw?rel=0" frameborder="0" allowfullscreen></iframe>
+
+<h2><a name="problem">Diagnosing the problem</a></h2>
+<h4><a name="state_events">1. State Change Events Via UI Router</a></h4>
+<p>
+	First, I wanted to identify what stage of the state transition was the bottleneck happening. Fortunately, UI Router provides State Change Events to do just that.
+</p>
+<div class="file-title">Defining state change event callbacks in app.run()</div>
+<pre><code class="language-javascript">aspire.run(["$rootScope",
+    function($rootScope) {
+        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+            console.log('$stateChangeStart to ' + toState.to + '- fired when the transition begins. toState,toParams : \n', toState, toParams);
+        });
+        $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams) {
+            console.log('$stateChangeError - fired when an error occurs during transition.');
+            console.log(arguments);
+        });
+        $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+            console.log('$stateChangeSuccess to ' + toState.name + '- fired once the state transition is complete.');
+        });
+        $rootScope.$on('$viewContentLoading', function(event, viewConfig) {
+            // runs on individual scopes, so putting it in "run" doesn't work.
+            console.log('$viewContentLoading - view begins loading - dom not rendered', viewConfig);
+        });
+        $rootScope.$on('$viewContentLoaded', function(event) {
+            console.log('$viewContentLoaded - fired after dom rendered', event);
+        });
+        $rootScope.$on('$stateNotFound', function(event, unfoundState, fromState, fromParams) {
+            console.log('$stateNotFound ' + unfoundState.to + '  - fired when a state cannot be found by its name.');
+            console.log(unfoundState, fromState, fromParams);
+        });
+    }
+])
+</code></pre>
+
+<p> From the video above we see from the console logs that the state transition is successful, the DOM actually finishes rendering, <strong><i>and then the page freezes</i></strong>.
+</p>
+<p> <strong>Conclusion:</strong> This must mean that the bottleneck was happening after the compile phase in Angular; most likely in the link phase where the two-way bindings are created.
+</p>
+
+<h4><a name="analyzing_performance">2. Analyzing Performance</a></h4>
+<p>
+	After further inspection of the html I hypothesized the bottleneck was happening within the ng-repeats since it was creating over 600 select html elements.
+</p>
+<div class="file-title">Relevant HTML</div>
+<pre><code class="language-markup">&lt;!-- {{essayTemplate[rawMCscore][essayRawScore]}} is the initial value of the select button based on previous SAT conversion tables. Most SAT converision tables have similar values so this allows the user to only need to change those that different -->
+&lt;tr ng-repeat="rawMCscore in [] | reverserange:[-5,49]" timer>
+	&lt;td class="info">{{rawMCscore}}&lt;/td>
+	&lt;td ng-repeat="essayRawScore in [] | reverserange:[1, 12]">
+		&lt;scaled-sat-score-select subject="Essay"
+				essayscore="{{essayRawScore}}"
+				rawscore="{{rawMCscore}}"
+				template="{{essayTemplate[rawMCscore][essayRawScore]}}">
+		&lt;/scaled-sat-score-select>
+	&lt;/td>
+&lt;/tr>
+</code></pre>
+<div class="file-title">Template html for the &lt;scaled-sat-score-select> directive</div>
+<pre><code class="language-markup">&lt;select ng-model="score" ng-options="scaledScore for scaledScore in scaledScores" class="form-control">
+&lt;/select>
+</code></pre>
+
+<p>
+	To experiment if my proposition was correct, I created this simple directive to log the time it takes to create all the copies specified in the outer <span class="inline-code">ng-repeat</span>.
+</p>
+
+<div class="file-title">timer directive</div>
+<pre><code class="language-javascript">aspire.directive('timer', ['$timeout',
+    function($timeout) {
+        return function(scope) {
+            if (scope.$first)
+            window.a = new Date();
+            if (scope.$last)
+                $timeout(function() {
+                    console.log("## DOM rendering list took: " + (new Date() - window.a) + " ms");
+                });
+        };
+    }
+]);
+</code></pre>
+<p>
+	As seen in the video above, I was able to log how long it took to finish the copying and linking of all the elements within the ng-repeat (on average 7000ms).
+</p>
+
+<h4><a name="counting_watchers">3. Counting watchers</a></h4>
+<p>
+	It's a common rule that whenever Angular has over over 2000 two-way data bindings, your application starts to have performance issues noticeable to the user. To count the number of watchers on the page, I use this a handy bookmarklet created by Ben Nadel. See the code <%= link_to "here", "http://www.bennadel.com/blog/2698-counting-the-number-of-watchers-in-angularjs.htm", target: '_blank' %>.
+</p>
+<p>
+	It showed that I was only a few watchers over 2000. So this obviously wasn't the only issue for the 6 second delay. I was able to reduce watchers to 1500 by removing the inner <span class="inline-code">ng-repeat</span> since it only had 12 iterations, but the long delay still existed. See the <%= link_to "gist", "https://gist.github.com/derrickmar/dcaa1530d57723909e87", target: "_blank" %> for the html.
+</p>
+
+<p>
+	The thing is, I could not remove the two-way data binding for each <span class="inline-code">&lt;scaled-sat-score-select></span> directive since I needed to keep track of changes to the conversion table so I could actually create it according to the values that the user specified.
+</p>
+
+<h4><a name="tinkering">4. Tinkering to find the real bottleneck</a></h4>
+<p> 
+	After some tinkering, I discovered that the real bottleneck lies within <span class="inline-code">ng-options</span> directive in my template html for the <span class="inline-code">&lt;scaled-sat-score-select></span> directive I created. Here it is again:
+</p>
+
+<div class="file-title">Template html for the &lt;scaled-sat-score-select> directive</div>
+<pre><code class="language-markup">&lt;select ng-model="score" ng-options="scaledScore for scaledScore in scaledScores" class="form-control">
+&lt;/select>
+</code></pre>
+
+<p> If we look at the relevant code for the directive <span class="inline-code">scaledScores</span> for <span class="inline-code">ng-options</span>, it is an array of over 60 values! This is because each conversion score can be a number between 200-800 with increments of 10. Since there was exactly 605 select elements for the conversion table that means there had to be a total of <strong> 36,300 options created!</strong> That's a lot of options. Alas, we have found the major issue.
+</p>
+
+<div class="file-title">scaledSatScoreSelect directive code</div>
+<pre><code class="language-javascript">aspire.directive('scaledSatScoreSelect', ["addSATConvTableService", "$timeout",
+    function(addSATConvTableService, $timeout) {
+        return {
+            restrict: 'E',
+            templateUrl: 'add_test/sat/__scaled_SAT_score_select.html',
+            scope: {
+                subject: "@",
+                rawscore: "@",
+                essayscore: "@",
+                template: "@",
+            },
+            link: function(scope, el, attrs) {
+				//... some other code
+				
+				// AN ARRAY OF 60 ELEMENTS!!! (200-800 increments of 10)
+                scope.scaledScores = addSATConvTableService.getScaledScores();
+                scope.score = parseInt(scope.template);
+
+            }
+        }
+    }
+]);
+</code></pre>
+
+<h2><a name="solution">The solution</a></h2>
+<p> While the 60 options for each select element is needed, who says they need to be generated right away on the state transition? All we really need is one option initially which is the template value. Then if the user interacts with the select element, we could dynamically create the other 59 option elements for that select element. Here are the steps I took:
+</p>
+
+<h4><a name="one_element">Step 1: Initally start with only one element (the template value) in scaledScores for ng-options</a></h4>
+<pre><code class="language-javascript">aspire.directive('scaledSatScoreSelect', ["addSATConvTableService", "$timeout",
+    function(addSATConvTableService, $timeout) {
+        return {
+				//... some other code
+            link: function(scope, el, attrs) {
+				//... some other code
+				// ONLY ONE VALUE IN SCALED SCORES
+                scope.scaledScores = parseInt(scope.template)
+                scope.score = parseInt(scope.template);
+
+            }
+        }
+    }
+]);
+</code></pre>
+
+<h4><a name="ng_focus">Step 2: Add ng-focus directive</a></h4>
+<p>Using <span class="inline-code">ng-focus</span>, call the populate function to dynamically append the elements when the select element is focused for the first time. </p>
+<div class="file-title">Add ng-focus to template html of &lt;scaled-sat-score-select> directive</div>
+<pre><code class="language-markup">&lt;select ng-model="score" ng-options="scaledScore for scaledScore in scaledScores" class="form-control" ng-focus="populate()">
+&lt;/select>
+</code></pre>
+<div class="file-title">populate function in scaledSatScoreSelect directive</div>
+<pre><code class="language-javascript">var populated = false;
+scope.populate = function() {
+    if (!populated) {
+        if (scope.subject != "Writing") {
+            scope.scaledScores = addSATConvTableService.getScaledScores();
+        } else {
+            scope.scaledScores = addSATConvTableService.getWritingScaledScores();
+        }
+        console.log("populated!");
+        populated = true;
+    }
+}
+</code></pre>
+
+<h2><a name="result">The result</a></h2>
+<p> With this simple change, I was able to reduce the linking phase of my 605 &lt;scaled-sat-score-select> directives to an average of 1000 ms. You can see the result for the user is much more acceptable.</p>
+<div>
+<iframe width="853" height="480" src="//www.youtube.com/embed/ohzsn59CatQ?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<h2><a name="conclusion">Conclusion</a></h2>
+<p>
+When you start to use ng-repeats with many iterations, multiple two-way databindings will be created. You might face some performance issues as a result.
+</p>
+<h4 name="diagonse">To diagonose the issue you can do some of the following:</h4>
+<ul>
+	<li>Count the number of watchers (<%= link_to "this bookmark", "http://www.bennadel.com/blog/2698-counting-the-number-of-watchers-in-angularjs.htm", target: '_blank' %> is helpful). A rule of thumb is to stay under 2000.
+	</li>
+	<li>
+		Use the timer directive shown previously to log how long <span class="inline-code">ng-repeat</span> elements take to complete their linking. If the delay is long, your issue is probably some code within the <span class="inline-code">ng-repeat</span>.
+	</li>
+	<li>
+		If you are using ui-router and the performance issue happens to be during a state transition, use state change event callbacks to understand where specifically in the state transition life cycle the bottleneck is occuring.
+	</li>
+	<li>
+		You might have to do additional analyzing within the <span class="inline-code">ng-repeat</span> template to find where exactly the bottleneck is occuring. For this blog post, I found the bottleneck to be within the ng-options.
+	</li>
+</ul>
+<div class="note">
+	Last updated: January 30, 2015
+</div>
+
+
+
+
+
+

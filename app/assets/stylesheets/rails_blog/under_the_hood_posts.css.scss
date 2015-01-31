@@ -11,6 +11,25 @@ $header-height: 50px;
 $body-color: black;
 $sidebar-selected: #f24235;
 
+//@-webkit-keyframes pulse {
+//	0% {background-color: #45CEEF;}
+//	25% {background-color: #FFF5A5;}
+//	50% {background-color: #FFD4DA;}
+//	75% {background-color: #99D2E4;}
+//	100% {background-color: #D8CAB4;}
+//}
+
+//.happy {
+//	width: 100px;
+//	height: 100px;
+//	&:hover {
+//		cursor: pointer;
+//		background-color: #45CEEF;    
+//		-webkit-animation: pulse 40s infinite alternate;
+//	}
+//}
+
+
 @mixin darkenOnHover($color) {
 	&:hover {
 		background-color: mix($color, black, 97%);
@@ -40,6 +59,14 @@ body {
 		cursor: auto;
 	}
 }
+
+//== Images
+.large_image {
+	border: 1px solid black;
+	padding: 5px 0px;
+	margin: 10px;
+}
+
 
 .main-topic {
 	margin-bottom: 5px;
@@ -134,7 +161,7 @@ h4 {
 		display: block;
 		text-decoration: none;
 		font-size: 18px;
-		padding: 8px 0px 8px 15px;
+		padding: 15px;
 
 		&:hover {
 			color: white;
@@ -365,8 +392,8 @@ h4 {
 	font-size: 16px;
 	text-align: center;
 	background-color: $header-color;
-	width: 200px;
-	height: 200px;
+	width: 190px;
+	height: 190px;
 	text-decoration: none;
 	margin-right: 10px;
 	padding: 0;
