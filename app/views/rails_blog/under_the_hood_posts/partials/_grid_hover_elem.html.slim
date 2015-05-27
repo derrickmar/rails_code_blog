@@ -1,0 +1,11 @@
+- small = false if local_assigns[:small].nil?
+li.col-xs-12.col-sm-3
+	= link_to link do
+		.front-face-holder
+			span.all-causes-title class=("big" if not small) = title
+			span.circle
+		.hoverElem
+			div
+				span.hoverElem-header = title
+				span.hoverElem-seperator •••
+				span.hoverElem-text = desc
