@@ -25,5 +25,6 @@ Gem::Specification.new do |s|
   s.add_dependency "sass-rails", ">= 3.2"
   s.add_dependency "jquery-rails"
   s.add_dependency "autoprefixer-rails"
+  s.add_dependency "slim-rails"
 
 end

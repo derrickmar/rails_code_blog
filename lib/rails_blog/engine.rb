@@ -4,6 +4,7 @@ module RailsBlog
 		require "bootstrap-sass"
 		require "sprockets"
 		require "autoprefixer-rails"
+    require "slim-rails"
 		isolate_namespace RailsBlog
 	end
 end
