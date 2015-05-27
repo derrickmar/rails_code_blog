@@ -1,0 +1,136 @@
+h1.main-topic
+  a name="title" ActiveRecord::Relation - Lazy Evaluation
+
+.info-box.tip-box
+  = image_tag("rails_blog/tip.png", class: 'question_mark_image')
+  .question
+    span TL;DR
+    span.glyphicon.glyphicon-chevron-down.expanding-arrow
+    a.hidden
+  .box-description
+    p #{link_to "ActiveRecord::Relation", "http://api.rubyonrails.org/classes/ActiveRecord/Relation.html", target: '_blank'} objects are #{link_to "lazy evaluated", "http://en.wikipedia.org/wiki/Lazy_evaluation", target: '_blank'}. This means that the database lookup is not triggered until you actually try to access the records in the relation object.
+
+    p If you need the query to happen eagerly use <span class="inline-code">#{link_to ".load", "http://apidock.com/rails/ActiveRecord/Relation/load", target: '_blank'}</span>
+
+    .file-title Example
+    pre
+      code.language-ruby
+        | @seniors = Student.where(year: "senior").load
+
+    p This will trigger a database lookup immediately when this line is reached.
+
+h4
+  a name="ar_object" The ActiveRecord::Relation object
+p Whenever you use the #{link_to "Active Record Query Interface", "http://guides.rubyonrails.org/active_record_querying.html", target: '_blank'} to retrieve data, an ActiveRecord::Relation object will be returned. This behaves similarly to an array except has #{link_to "extra methods", "http://api.rubyonrails.org/classes/ActiveRecord/Relation.html", target: '_blank'} to find out information about the resulting data, to interact with the database, and to chain additional queries.
+
+p You can think of an ActiveRecord::Relation as a wrapper around an array that gives you more functionality to deal with the queried data.
+
+h4
+  a name="lazy_evaluation" ActiveRecord::Relation Lazy Evaluation - Example
+p An important thing to keep in mind is that ActiveRecord::Relation objects are lazy evaluated. If your not careful, subtle bugs can be introduced. Let's take a trivial example:
+
+p We have a Course model and a Student model. A course has many students. When a course is destroyed, it also destroys all the students that belong to the course.
+
+.file-title course.rb
+pre
+  code.language-ruby
+    |class Course < ActiveRecord::Base
+        has_many :students, dependent: :destroy_all
+     end
+
+.file-title student.rb
+pre
+  code.language-ruby
+    |class Student < ActiveRecord::Base
+        belongs_to :course
+     end
+
+p When a course is destroyed, we would like to email the students that belong to a course that they are being destroyed as well.
+
+.file-title courses_controller.rb
+pre.line-numbers data-line="4-6"
+  code.language-ruby
+    | class CoursesController < ApplicationController
+        def destroy
+          @course = Course.find(params[:id])
+          @students = Student.where(course_id: @course.id)
+          @course.destroy
+          @students.each do |student|
+            StudentMailer.notify_destroyed(student.email)
+          end
+          redirect_to root_path
+        end
+      end
+
+p Since ActiveRecord::Relation objects are queried lazily, there is no SQL query on line 4.  <span class="inline-code">@students</span> on line 4 is just an unpopulated ActiveRecord::Relation object waiting to be accessed. On line 5, we destroy <span class="inline-code">@course</span> which also destroys the students that belong to the course.
+
+p Finally on line 6, we access the  <span class="inline-code">@students</span> for the first time so the query is now executed. <i>But all the students are already destroyed on the previous line!</i> Consequently,  <span class="inline-code">@students</span> on line 6 will just be an empty ActiveRecord::Relation since the resulting SQL query that is executed has no matching results. None of the students that once belonged to the destroyed course will be notified.
+
+.file-title.text This SQL query will be executed line 6 will return an empty ActiveRecord::Relation
+pre
+  code
+    Student Load (0.4ms)  SELECT "students".* FROM "students" WHERE "students"."course_id" = $1  [["course_id", 2]]
+
+h4
+  a name="solution" Solution
+p The solution is to query eagerly instead of lazily. Fortunately, the ActiveRecord::Relation object has a method just for that. Just use <span class="inline-code">#{link_to ".load", "http://apidock.com/rails/ActiveRecord/Relation/load", target: '_blank'}.
+
+.file-title courses_controller.rb
+pre.line-numbers data-start="4"
+  code.language-ruby
+    | @students = Student.where(course_id: @course.id).load
+
+p This will execute an SQL query immediately on this line when. The ActiveRecord::Relation will then be populated with the matching results.
+
+.info-box.tip-box
+  = image_tag("rails_blog/tip.png", class: 'question_mark_image')
+  .question
+    span Does the SQL query get executed everytime the ActiveRecord::Relation instance is accessed?
+    span.glyphicon.glyphicon-chevron-down.expanding-arrow
+
+  .box-description.hidden
+    p No, that would be inefficient. The results are cached after the SQL query is executed for the first time. In order to execute another query, you will need to use <span class="inline-code">#{link_to ".reload", "http://apidock.com/rails/ActiveRecord/Base/reload", target: '_blank'}</span>
+
+    .file-title Example
+    pre
+      code.language-ruby
+        | @students.reload
+
+    p But when would <span class="inline-code">.reload</span> be necessary? See this article here.
+
+h4
+  a name="when" When do we have to be careful about the lazy evaluation behavior?
+p If you see a piece of code that:
+ol
+  li Declares a ActiveRecord::Relation (line 4 in example above)
+  li Manipulates data that will be in the ActiveRecord::Relation before the query is executed (line 5)
+  li Accesses the ActiveRecord::Relation for the first time which executes the query (line 6)
+
+h4
+  a name="why" Why does ActiveRecord::Relation objects lazy evaluate in the first place?
+p The biggest advantage is the ability to chain query methods together and execute only a <i>single SQL query</i> at the point that record needs to be accessed. Here's an example using scopes which also returns an ActiveRecord::Relation:
+
+.file-title course.rb
+pre
+  code.language-ruby
+    | class Course < ActiveRecord::Base
+        scope :active, -> { where(state: "active") }
+        scope :sorted_asc, -> { order(created_at: :asc) }
+        scope :sorted_desc, -> { order(created_at: :desc) }
+     end
+
+.file-title courses_controller.rb
+pre data-line="8"
+  code.language-ruby
+    | def some_action
+          @courses = Course.active
+          if params[:sort_by_ascending]
+            @courses = @courses.sorted_asc
+          else
+            @courses = @courses.sorted_desc
+          end
+          @courses.each do |course| # Only one SQL query will be executed here when @courses is first accessed
+            #...
+          end
+     end
+

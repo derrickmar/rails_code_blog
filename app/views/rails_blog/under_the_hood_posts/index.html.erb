@@ -15,4 +15,11 @@
 		<%= render partial: @hover_elem_partial_path,
 		locals: { link: under_the_hood_posts_angular_performance_path, title: "AngularJS", desc: "Diagonsing performance issues with ng-repeat and ng-options" } %>
 	</ul>
+
+	<ul class="da-thumbs-2 col-xs-12">
+		<%= render partial: @hover_elem_partial_path,
+		locals: { link: under_the_hood_posts_ar_relation_lazy_evaluation_path, title: "ActiveRecord::Relation -- Lazy Evaluation", small: true, desc: "When using the Active Record Query Interface" } %>
+		<%= render partial: @hover_elem_partial_path,
+		locals: { link: under_the_hood_posts_ar_relation_lazy_evaluation_path, title: "In-Memory vs. Database -- .reload", small: true, desc: "Understanding when to use .reload" } %>
+	</ul>
 </div>
