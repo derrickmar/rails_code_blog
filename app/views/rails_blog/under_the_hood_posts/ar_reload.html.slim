@@ -1,0 +1,206 @@
+h1.main-topic
+  a name="title" In-Memory vs. Database Layer -- .reload
+p.small-header Gain a basic understanding of the difference of in-memory vs. the database in order to know when to call #{link_to ".reload", "http://apidock.com/rails/ActiveRecord/Base/reload", target: '_blank'}.
+
+.info-box.tip-box
+  = image_tag("rails_blog/tip.png", class: 'question_mark_image')
+  .question
+    span TL;DR
+    span.glyphicon.glyphicon-chevron-down.expanding-arrow
+  .box-description
+    p There are times when the in-memory state of an object may be out of sync with it's corresponding values in the database.
+
+    p: markdown: When this happens, you must call ```#{link_to ".reload", "http://apidock.com/rails/ActiveRecord/Base/reload", target: '_blank'}```  on the in-memory object in order to refresh the values from the database.
+
+    .file-title Example
+    pre
+      code.language-ruby
+        | expect(@obj_at_test.reload.some_attribute).to eq "some value"
+
+h2 In-Memory vs. Database
+p.small-header * If you already know the difference between memory and storage in the context of rails, skip to the next section.
+
+p For most rails developers an appropriate abstraction of In-Memory vs. Database is so:
+ul
+  li: markdown: **Database (#{link_to "non-volatile", "http://en.wikipedia.org/wiki/Non-volatile_memory", target: '_blank'}):** some large file that holds all of your data.
+  li: markdown: **In-Memory (#{link_to "volatile", "http://en.wikipedia.org/wiki/Volatile_memory", target: '_blank'}):** A large array where blocks can be allocated to hold the values you retrieved from the database, variables/objects you defined, etc... Basically the values in your ruby code.
+
+p: markdown: Whenever a query is executed, it loads the relevant data from the database into memory. If you've ever used ```puts``` you would see something like this.
+pre
+  code.language-ruby
+    |@student = Student.first
+     puts @student # Student:0x007fd6254c13c0
+
+p That hexadecimal value shows the location in memory that the ruby object we instantiated occupies.
+
+= image_tag "rails_blog/memory_block.png", class: "center-medium-image"
+
+h4 Basic example
+pre.line-numbers
+  code.language-ruby
+    | @student_allocation_1 = Student.first
+      @student_allocation_2 = Student.first
+      @student_allocation_2.name = "New name"
+      @student_allocation_2.save!
+      puts @student_allocation_2.name # "New name"
+      puts @student_allocation_1.name # "Derrick"
+
+p: markdown: In the example below, the instance variables ```@student_allocation_1``` in line 1 and ```@student_allocation_2``` in line 2 currently are the same values representing ```Student.first``` from the db. But they are entirely independent ruby objects and have seperate allocations in memory.
+
+.file-title: markdown: A visualization of ```@student_allocation_1``` and ```@student_allocation_2``` in memory after line 2
+= image_tag "rails_blog/memory_allocation.png", class: "center-medium-image"
+
+p: markdown: In line 3, we change the name of the in-memory ```@student_allocation_2``` object to "New name". Then in line 4, we call ```save!``` on ```@student_allocation_2``` which persists the change to the appropriate database row.
+
+.file-title: markdown: ```@student_allocation_1``` and ```@student_allocation_2``` in memory after line 3
+= image_tag "rails_blog/memory_allocation_update.png", class: "center-medium-image"
+
+
+p: markdown: But in line 5 and 6, ```@student_allocation_1``` and ```@student_allocation_2``` are printing different values because in-memory object ```@student_allocation_1``` has not been refreshed with the new values from the save in line 4.
+
+p: markdown: Use ```.reload``` to reload the attributes of ```@student_allocation_1``` from the database. Now it will show the correct value.
+
+pre
+  code.language-ruby
+    | @student_allocation_1.reload
+      puts @student_allocation_1.name # "New name"
+
+h2
+  a name="why" Example: when to use reload in testing
+p After any student is created we would like to run a callback to change the student's year to "freshman". I know its more practical to have a default value of "freshman", but for the sake of simplicity bear with me.
+
+p: markdown: In  #{link_to "TDD", "http://en.wikipedia.org/wiki/Test-driven_development", target: '_blank'} fashion, you proceed to write this corresponding model spec.  Then we add an ```after_create``` callback to change the year to "freshman".
+
+.row
+  .col-md-6
+    .file-title student_spec.rb
+    pre data-line="3"
+      code.language-ruby
+        |describe "when a student is saved" do
+            it "should change year to student" do
+                @student = Student.create(name: "Derrick")
+                expect(@student.year).to eq("freshman")
+            end
+         end
+  .col-md-6
+    .file-title student.rb
+    pre data-line="5"
+      code.language-ruby
+        |class Student < ActiveRecord::Base
+            after_create :change_year
+
+            def change_year
+                @student_from_db = Student.find(self.id)
+                @student_from_db.update!(year: "freshman")
+            end
+         end
+
+p But when we run the spec it fails although after further verfication it is still running the callback and successfully updating the year to "freshman".
+pre.hide-language
+  code.language-bash
+    |Failure/Error: expect(@student.year).to eq("freshman")
+
+     expected: "freshman"
+          got: nil
+
+     (compared using ==)
+
+p: markdown: The spec is failing because ```@student``` on line 3 of ```student_spec.rb``` is a different in-memory object than ```@student_from_db``` that was queried on line 5 of ```student.rb```. Remember whenever you execute a query, it creates a new in-memory object.
+
+p: markdown: While you persisted the update on line 6 of ```student.rb``` which then updated the in-memory object ```@student_from_db```, ```@student``` in ```student_spec.rb``` still has the old values. It is considered stale or not up-to-date with its corresponding values in the database.
+
+p: markdown:  In order for the spec to pass, you'll need to call reload on ```@student``` on line 4 of ```student_spec.rb```.
+pre
+  code.language-ruby
+    |expect(@student.reload.year).to eq("freshman")
+
+p You could also requery the student from the database which has the up-to-date values.
+pre
+  code.language-ruby
+    |expect(Student.find(@student.id).year).to eq("freshman")
+
+h4 Refactoring
+p: markdown: Obviously, you would never requery the student when we can access it through ```self```. Let's refactor ```change_type```:
+
+.row
+  .col-xs-6
+    .file-title student.rb
+    pre
+      code.language-ruby
+        |class Student < ActiveRecord::Base
+            after_create :change_type
+
+            def change_type
+                self.update(type: "freshman")
+            end
+         end
+
+  .col-xs-6
+    .file-title Original spec for convenience - student_spec.rb
+    pre
+      code.language-ruby
+        |describe "when a student is saved" do
+            it "should change year to student" do
+                @student = Student.create(name: "Derrick")
+                expect(@student.year).to eq("freshman")
+            end
+         end
+
+p: markdown: With the original spec without the ```.reload```, the specs passes. There is no need for ```.reload``` because ```@student``` in ```student_spec.rb``` and ```self``` in ```student.rb``` refer to the same in-memory object. Remember that ```self``` in an instance method points to the caller.
+
+h2
+  a name="practical" Practical Example
+
+
+
+p Here's another example. All credits to #{link_to "Erez Rabih", "https://railsadventures.wordpress.com/2012/11/24/activerecord-and-in-memory-object-state/", target: '_blank'} who wrote this.
+
+pre.line-numbers
+  code.language-ruby
+    |class Question < ActiveRecord::Base
+      attr_accessible :title
+     end
+
+     class User < ActiveRecord::Base
+       has_many :questions do
+         def close_last!
+           modified_last_question = last #query the last question of the user
+           modified_last_question.title += " [CLOSED]"
+           modified_last_question.save!
+         end
+       end
+     end
+
+     describe User do
+       describe :close_last! do
+         it "should add [CLOSED] to last question title" do
+           u = User.create!(:email => "email@some.company")
+           spec_last_question = u.questions.create!(:title => "Does this work?!")
+           u.questions.close_last!
+           # SPEC WILL FAIL HERE
+           spec_last_question.title.should eq "Does this work?! [CLOSED]"
+         end
+      end
+
+p: markdown: The spec will fail because ```modified_last_question``` is a different in-memory object than ```spec_last_question```.
+
+p: markdown: In order to get the test to pass use ```.reload```
+pre
+  code.language-ruby
+    |spec_last_question.reload.title.should eq "Does this work?! [CLOSED]"
+
+p: markdown: Or requery
+pre
+  code.language-ruby
+    |u.questions.last.title.should eq "Does this work?! [CLOSED]"
+
+h2 Sources
+ul
+  li #{link_to "Erez Rabih's post on .reload", "https://railsadventures.wordpress.com/2012/11/24/activerecord-and-in-memory-object-state/", target: '_blank'}
+  li #{link_to "Stackoverflow post on when to use .reload", "http://stackoverflow.com/questions/5519741/how-can-i-know-when-to-refresh-my-model-object-in-rails", target: '_blank'}
+
+h2 Related topics
+ul
+  li #{link_to "Optimistic Locking", "http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html", target: '_blank'} and #{link_to "Pessimistic Locking", "http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html", target: '_blank'}
+
+
