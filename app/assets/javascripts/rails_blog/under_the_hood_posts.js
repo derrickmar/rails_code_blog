@@ -1,6 +1,5 @@
 (function($, window, document) {
     $(window).load(function() {
-        console.log('running?');
         tips.onReady($('.question'));
         var sidebar = new Sidebar($('.sidebar'))
         sidebar.onReady();
@@ -19,7 +18,6 @@
                 el.on('mouseenter', 'li', function() {
                     // TODO - setTimeout to 100 as in hoverDelay
                     $(this).find('.all-causes-title').fadeOut(250);
-                    console.log('in hover');
                 }).on('mouseleave', 'li', function() {
                     $(this).find('.all-causes-title').fadeIn(250); // repetition!!
                 });
@@ -39,10 +37,8 @@
         var tips = {
             onReady: function(box) {
                 box.on("click", function() {
-                    console.log('clicked question!');
                     $(this).siblings('.box-description').toggleClass('hidden');
                     var arrow = $(this).find('.expanding-arrow');
-                    console.log(arrow);
                     if (arrow.hasClass('glyphicon-chevron-down')) {
                         arrow.removeClass('glyphicon-chevron-down');
                         arrow.addClass('glyphicon-chevron-up');
@@ -70,14 +66,11 @@
 
                 for (i = 0; i < sections.length; i++) {
                     var distance = $(sections[i]).offset().top;
-                    console.log("distance", distance);
                     distances[distance] = $(sections[i]);
                 }
 
-                console.log(distances);
                 distances_keys = Object.keys(distances).sort(function(a, b){return a - b});
             // sort distances_keys?
-            console.log(distances_keys);
 
             $(sidebar_sections).on("click", function() {
                 obj.changeSelected($(this));
@@ -87,13 +80,10 @@
             $window.scroll(function() {
                 var scrollTop = $window.scrollTop();
                 var pos = obj.returnPosition(scrollTop)
-                    // console.log("position: ", pos);
                     var name = "#" + $(distances[pos][0]).children("a").attr("name");
-                // console.log($('a[href=' + name + ']'));
                 // if ($('a[href=' + name + ']'))
                 var sidebar_tab = $('a[href=' + name + ']');
                 if (!sidebar_tab.hasClass('selected')) {
-                    console.log('scrollTop', scrollTop);
                     obj.changeSelected($('a[href=' + name + ']'));
                 }
             })
@@ -108,20 +98,16 @@
             var parent = el.parent();
             var siblHasClassNestedTwo = el.siblings('.nested-two');
             if (parent.hasClass('nested-two') && parent.css('display') == "none") {
-                console.log('sliding down nested-two first');
-                console.log("parent", parent);
                 parent.slideDown();
                 slideDownCurr = parent.parent();
                 slideDownCurr.addClass('nested-two-focused');
                 // might error out if siblNestedTwo has not elements
             } else if (siblHasClassNestedTwo.length == 1 && $(siblHasClassNestedTwo[0]).css('display') == "none") {
                 var nestedTwo = $(siblHasClassNestedTwo[0])
-                console.log('sliding down nested-two');
                 nestedTwo.slideDown();
-                slideDownCurr = nestedTwo.parent(); // .nested-two-container 
+                slideDownCurr = nestedTwo.parent(); // .nested-two-container
                 slideDownCurr.addClass('nested-two-focused');
             }
-            // console.log('change selected!');
             sidebar.find('.selected').removeClass('selected');
             el.addClass('selected');
         };
@@ -129,10 +115,7 @@
         /* Checks if the nested-two div must slide up if you are in a different
         section */
         this.checkSlideUp = function(el) {
-            console.log(el[0]);
-            console.log(!$.contains(slideDownCurr[0], el[0]));            
             if (!$.contains(slideDownCurr[0], el[0])) {
-                console.log('should slideUp!!');
                 slideDownCurr.removeClass('nested-two-focused');
                 slideDownCurr.find('.nested-two').slideUp();
             }
@@ -142,7 +125,6 @@
             for (i = 0; i < distances_keys.length; i++) {
                 if (distances_keys[i] > scrollTop + header_height + 15) {
                     var position = Math.max(i - 1, 0)
-                        // console.log('position', position);
                         return distances_keys[position]
                     }
                 }
