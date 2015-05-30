@@ -26,5 +26,6 @@ Gem::Specification.new do |s|
   s.add_dependency "jquery-rails"
   s.add_dependency "autoprefixer-rails"
   s.add_dependency "slim-rails"
+  s.add_dependency "redcarpet"
 
 end
