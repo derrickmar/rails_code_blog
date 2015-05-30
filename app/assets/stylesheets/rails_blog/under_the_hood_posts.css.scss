@@ -65,12 +65,33 @@ i {
 	}
 }
 
+pre[class*='language-'] {
+	&.hide-language {
+		&::before {
+			display: none;
+		}
+	}
+}
+
+// For markdown
+code {
+	color: black;
+	background-color: transparent;
+}
+
 
 //== Images
 .large_image {
 	border: 1px solid black;
 	padding: 5px 0px;
 	margin: 10px;
+}
+
+.center-medium-image {
+	width: 70%;
+  margin: auto;
+  display: block;
+  padding: 5px 0px;
 }
 
 

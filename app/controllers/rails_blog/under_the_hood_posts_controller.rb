@@ -2,6 +2,7 @@ require_dependency "rails_blog/application_controller"
 
 module RailsBlog
   class UnderTheHoodPostsController < ApplicationController
+    SIDEBAR_NAMESPACE = "rails_blog/sidebar/"
     before_action :append_namespace
 
   	def index
@@ -10,11 +11,10 @@ module RailsBlog
   	end
 
     def ar_relation_lazy_evaluation
-      @sidebar_partial += 'sidebar_ar_relation_lazy_evaluation.html.erb'
+      @sidebar_partial += 'sidebar_ar_relation_lazy_evaluation'
     end
 
     def ar_reload
-      @sidebar_partial += 'sidebar_ar_reload.html.erb'
     end
 
     def ngrok
@@ -34,8 +34,6 @@ module RailsBlog
     end
 
     private
-    SIDEBAR_NAMESPACE = "rails_blog/sidebar/"
-
     def append_namespace
       @sidebar_partial = SIDEBAR_NAMESPACE
     end
