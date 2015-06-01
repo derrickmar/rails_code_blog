@@ -1,3 +1,19 @@
+- content_for :sidebar do
+  div
+    a.selected href="#title" In-Memory vs. Database Layer -- .reload
+    .nested-one
+      .nested-two-container
+        a href="#memory_vs_db" In-Memory vs. Database
+        .nested-two
+          a href="#basic_example" Basic example
+      .nested-two-container
+        a href="#testing_example" .reload in tests
+        .nested-two
+          a href="#refactoring" Refactoring
+      a href="#practical_example" Practical Example
+      a href="#sources" Sources
+      a href="#related_topics" Related Topics
+
 h1.main-topic
   a name="title" In-Memory vs. Database Layer -- .reload
 p.small-header Gain a basic understanding of the difference of in-memory vs. the database in order to know when to call #{link_to ".reload", "http://apidock.com/rails/ActiveRecord/Base/reload", target: '_blank'}.
@@ -17,7 +33,8 @@ p.small-header Gain a basic understanding of the difference of in-memory vs. the
       code.language-ruby
         | expect(@obj_at_test.reload.some_attribute).to eq "some value"
 
-h2 In-Memory vs. Database
+h2
+  a name="memory_vs_db" In-Memory vs. Database
 p.small-header * If you already know the difference between memory and storage in the context of rails, skip to the next section.
 
 p For most rails developers an appropriate abstraction of In-Memory vs. Database is so:
@@ -35,7 +52,8 @@ p That hexadecimal value shows the location in memory that the ruby object we in
 
 = image_tag "rails_blog/memory_block.png", class: "center-medium-image"
 
-h4 Basic example
+h4
+  a name="basic_example" Basic example
 pre.line-numbers
   code.language-ruby
     | @student_allocation_1 = Student.first
@@ -66,7 +84,7 @@ pre
       puts @student_allocation_1.name # "New name"
 
 h2
-  a name="why" Example: when to use reload in testing
+  a name="testing_example" Example: when to use reload in testing
 p After any student is created we would like to run a callback to change the student's year to "freshman". I know its more practical to have a default value of "freshman", but for the sake of simplicity bear with me.
 
 p: markdown: In  #{link_to "TDD", "http://en.wikipedia.org/wiki/Test-driven_development", target: '_blank'} fashion, you proceed to write this corresponding model spec.  Then we add an ```after_create``` callback to change the year to "freshman".
@@ -119,7 +137,8 @@ pre
   code.language-ruby
     |expect(Student.find(@student.id).year).to eq("freshman")
 
-h4 Refactoring
+h4
+ a name="refactoring" Refactoring
 p: markdown: Obviously, you would never requery the student when we can access it through ```self```. Let's refactor ```change_type```:
 
 .row
@@ -149,13 +168,11 @@ p: markdown: Obviously, you would never requery the student when we can access i
 p: markdown: With the original spec without the ```.reload```, the specs passes. There is no need for ```.reload``` because ```@student``` in ```student_spec.rb``` and ```self``` in ```student.rb``` refer to the same in-memory object. Remember that ```self``` in an instance method points to the caller.
 
 h2
-  a name="practical" Practical Example
-
-
+  a name="practical_example" Practical Example
 
 p Here's another example. All credits to #{link_to "Erez Rabih", "https://railsadventures.wordpress.com/2012/11/24/activerecord-and-in-memory-object-state/", target: '_blank'} who wrote this.
 
-pre.line-numbers
+pre.line-numbers data-line="8"
   code.language-ruby
     |class Question < ActiveRecord::Base
       attr_accessible :title
@@ -194,12 +211,14 @@ pre
   code.language-ruby
     |u.questions.last.title.should eq "Does this work?! [CLOSED]"
 
-h2 Sources
+h2
+  a name="sources" Sources
 ul
   li #{link_to "Erez Rabih's post on .reload", "https://railsadventures.wordpress.com/2012/11/24/activerecord-and-in-memory-object-state/", target: '_blank'}
   li #{link_to "Stackoverflow post on when to use .reload", "http://stackoverflow.com/questions/5519741/how-can-i-know-when-to-refresh-my-model-object-in-rails", target: '_blank'}
 
-h2 Related topics
+h2
+  a name="related_topics" Related topics
 ul
   li #{link_to "Optimistic Locking", "http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html", target: '_blank'} and #{link_to "Pessimistic Locking", "http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html", target: '_blank'}
 

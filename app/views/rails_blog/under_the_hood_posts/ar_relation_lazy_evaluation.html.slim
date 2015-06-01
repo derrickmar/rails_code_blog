@@ -28,8 +28,6 @@ h4
   a name="lazy_evaluation" ActiveRecord::Relation Lazy Evaluation - Example
 p An important thing to keep in mind is that ActiveRecord::Relation objects are lazy evaluated. If your not careful, subtle bugs can be introduced. Let's take a trivial example:
 
-p We have a Course model and a Student model. A course has many students. When a course is destroyed, it also destroys all the students that belong to the course.
-
 .file-title course.rb
 pre
   code.language-ruby
@@ -63,9 +61,9 @@ pre.line-numbers data-line="4-6"
 
 p Since ActiveRecord::Relation objects are queried lazily, there is no SQL query on line 4.  <span class="inline-code">@students</span> on line 4 is just an unpopulated ActiveRecord::Relation object waiting to be accessed. On line 5, we destroy <span class="inline-code">@course</span> which also destroys the students that belong to the course.
 
-p Finally on line 6, we access the  <span class="inline-code">@students</span> for the first time so the query is now executed. <i>But all the students are already destroyed on the previous line!</i> Consequently,  <span class="inline-code">@students</span> on line 6 will just be an empty ActiveRecord::Relation since the resulting SQL query that is executed has no matching results. None of the students that once belonged to the destroyed course will be notified.
+p Finally on line 6, we access the  <span class="inline-code">@students</span> for the first time so the query is now executed. <i>But all the students are already destroyed on the previous line!</i> Consequently,  <span class="inline-code">@students</span> on line 6 will just be an empty ActiveRecord::Relation since the resulting SQL query that is executed has no matching results. The .each loop will not be executed even once.
 
-.file-title.text This SQL query will be executed line 6 will return an empty ActiveRecord::Relation
+.file-title.text This SQL query executed on line 6 will return an empty ActiveRecord::Relation
 pre
   code
     Student Load (0.4ms)  SELECT "students".* FROM "students" WHERE "students"."course_id" = $1  [["course_id", 2]]
@@ -79,7 +77,7 @@ pre.line-numbers data-start="4"
   code.language-ruby
     | @students = Student.where(course_id: @course.id).load
 
-p This will execute an SQL query immediately on this line when. The ActiveRecord::Relation will then be populated with the matching results.
+p This will execute an SQL query immediately on this line. The ActiveRecord::Relation will be populated with the matching results.
 
 .info-box.tip-box
   = image_tag("rails_blog/tip.png", class: 'question_mark_image')
@@ -95,7 +93,7 @@ p This will execute an SQL query immediately on this line when. The ActiveRecord
       code.language-ruby
         | @students.reload
 
-    p But when would <span class="inline-code">.reload</span> be necessary? See this article here.
+    p But when would <span class="inline-code">.reload</span> be necessary? See this article #{link_to "here", under_the_hood_posts_ar_reload_path, target: '_blank'}.
 
 h4
   a name="when" When do we have to be careful about the lazy evaluation behavior?
