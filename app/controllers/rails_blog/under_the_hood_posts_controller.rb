@@ -2,10 +2,12 @@ require_dependency "rails_blog/application_controller"
 
 module RailsBlog
   class UnderTheHoodPostsController < ApplicationController
+    layout "rails_blog/blog_posts"
     SIDEBAR_NAMESPACE = "rails_blog/sidebar/"
     before_action :append_namespace
 
   	def index
+      @disable_disqus = true
       @sidebar_partial = 'rails_blog/sidebar/sidebar_index'
       @hover_elem_partial_path = 'rails_blog/under_the_hood_posts/partials/grid_hover_elem'
   	end
